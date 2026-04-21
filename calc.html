@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор позиции (Crypto)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            width: 360px;
+        }
+        h2 {
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 6px;
+            border: none;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #22c55e;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 15px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Калькулятор позиции</h2>
+
+    <label>Цена входа:</label>
+    <input type="number" id="entryPrice" placeholder="25000">
+
+    <label>Количество монет:</label>
+    <input type="number" id="entryAmount" placeholder="0.1">
+
+    <label>Плечо:</label>
+    <input type="number" id="leverage" value="5">
+
+    <label>Цена усреднения:</label>
+    <input type="number" id="avgPrice" placeholder="24000">
+
+    <label>Количество монет для усреднения:</label>
+    <input type="number" id="avgAmount" placeholder="0.1">
+
+    <button >Рассчитать</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+
+    let savedData = {}
+    let avgPrice  = document.getElementById('avgPrice')
+    let avgAmount = document.getElementById('avgAmount')
+
+    document.querySelector('button').addEventListener('click', calculate);
+    avgPrice.addEventListener('input', calculate)
+    avgAmount.addEventListener('input', calculate)
+
+    function writeFormData(){
+        if(localStorage.tradeInfo){
+            savedData = JSON.parse(localStorage.tradeInfo);
+        }
+        document.getElementById('entryPrice').value = savedData.entryPrice
+        document.getElementById('entryAmount').value = savedData.entryAmount
+        avgPrice.value = savedData.avgPrice
+        avgAmount.value = savedData.avgAmount
+    }
+    writeFormData()
+    function saveFormData(savedData){
+        localStorage.tradeInfo = JSON.stringify(savedData);
+    }
+
+    function calculate() {
+        let entryPrice = parseFloat(document.getElementById('entryPrice').value);
+        let entryAmount = parseFloat(document.getElementById('entryAmount').value);
+        let leverage = parseFloat(document.getElementById('leverage').value);
+        let avgPrice = parseFloat(document.getElementById('avgPrice').value);
+        let avgAmount = parseFloat(document.getElementById('avgAmount').value) || 0;
+
+        if (!entryPrice || !entryAmount || !leverage) {
+            alert("Заполни основные поля!");
+            return;
+        }
+
+        // Основная позиция
+        let entryCost = entryPrice * entryAmount;
+        let entryMargin = entryCost / leverage;
+
+        // Усреднение
+        let avgCost = (avgPrice || 0) * avgAmount;
+        let avgMargin = avgCost / leverage;
+
+        // Итог
+        let totalAmount = entryAmount + avgAmount;
+        let totalCost = entryCost + avgCost;
+        let newAvgPrice = totalCost / totalAmount;
+        let totalMargin = entryMargin + avgMargin;
+
+        savedData = {
+            entryPrice,
+            entryAmount,
+            avgPrice,
+            avgAmount,
+        }
+        console.log(savedData)
+        saveFormData(savedData)
+
+        document.getElementById('result').innerHTML = `
+            <b>--- Основная позиция ---</b><br>
+            Вложено: ${entryMargin.toFixed(2)} $<br><br>
+
+            <b>--- Усреднение ---</b><br>
+            Нужно вложить: ${avgMargin.toFixed(2)} $<br><br>
+
+            <b>--- Итог ---</b><br>
+            Общая позиция: ${totalAmount.toFixed(4)} монет<br>
+            Средняя цена: ${newAvgPrice.toFixed(2)} $<br>
+            Всего вложено: ${totalMargin.toFixed(2)} $<br>
+            Общий объём (с плечом): ${(totalCost * leverage).toFixed(2)} $
+        `;
+    }
+</script>
+
+</body>
+</html>
