@@ -137,16 +137,16 @@
 
         document.getElementById('result').innerHTML = `
             <b>--- Основная позиция ---</b><br>
-            Вложено: ${entryMargin.toFixed(2)} $<br><br>
+            Вложено: ${entryMargin.toFixed(6)} $<br><br>
 
             <b>--- Усреднение ---</b><br>
-            Нужно вложить: ${avgMargin.toFixed(2)} $<br><br>
+            Нужно вложить: ${avgMargin.toFixed(6)} $<br><br>
 
             <b>--- Итог ---</b><br>
-            Общая позиция: ${totalAmount.toFixed(4)} монет<br>
-            Средняя цена: ${newAvgPrice.toFixed(2)} $<br>
-            Всего вложено: ${totalMargin.toFixed(2)} $<br>
-            Общий объём (с плечом): ${(totalCost * leverage).toFixed(2)} $
+            Общая позиция: ${totalAmount.toFixed(6)} монет<br>
+            Средняя цена: ${newAvgPrice.toFixed(6)} $<br>
+            Всего вложено: ${totalMargin.toFixed(6)} $<br>
+            Общий объём (с плечом): ${(totalCost * leverage).toFixed(6)} $
         `;
     }
 </script>
